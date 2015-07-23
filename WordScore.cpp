@@ -1,34 +1,44 @@
 #include <iostream>
+#include <vector>
+#include <map>
 #include <string>
-
+#include <algorithm>
+#include <fstream>
 using namespace std;
 
 const int NCHAR = 26;
 
-int score(string , const int [] );
-void fillWeigthArray(int [] );
-
-int main(int argc, char **argv) {
-
-	if(argc < 3) {
-		cerr << "USAGE " << argv[0] << " INPUTFILE OUTPUTFILE" << endl;
-		return -1;
-	}
-
-	string inputFile = argv[1];
-	string outputFile = argv[2];
+void populateMap(string , map<int,string > & );
+void printScoreMap(map<int,string> );
+void fillWeightArray(int [] );
+int scoreOfString(string , const int [] );
 
 
-	int alphaWeight[NCHAR];
-	fillWeigthArray(alphaWeight);
-	string str = "aZ";
-	cout<<score(str,alphaWeight);
-
+int main() {
+	map<int,string> scoreToWordMap;
+	populateMap("words.txt", scoreToWordMap);
+	printScoreMap(scoreToWordMap);
 }
 
 
+void populateMap(string fileName, map<int,string> &scoreMap) {
+	ifstream inputFile(fileName.c_str());
+	string line;
+	int currScore = 0;
+	int alphaScoreArray[NCHAR];
+	fillWeightArray(alphaScoreArray);
+	
+	while (inputFile >> line) {
+		currScore = scoreOfString(line, alphaScoreArray);
+		
+		if (scoreMap.find(currScore) == scoreMap.end()) {
+			scoreMap[currScore]	= "";
+		}
+		scoreMap[currScore]+=(line +" ");
+	}
+}
 
-int score(string str, const int alphaWeight[] ) {
+int scoreOfString(string str, const int alphaWeight[] ) {
 	int wordScore = 0;
 
 	for (unsigned int i = 0; i < str.length(); ++i) {
@@ -39,8 +49,16 @@ int score(string str, const int alphaWeight[] ) {
 	return wordScore;
 }
 
-void fillWeigthArray(int alphaWeight[] ) {
+void fillWeightArray(int alphaWeight[] ) {
 	for (int i = 0; i < NCHAR; ++i) {
 		alphaWeight[i] = i+1;
 	}
+}
+
+
+void printScoreMap(map<int, string > scoreMap)
+{
+	for (map<int,string>::iterator mapit=scoreMap.begin(); mapit!=scoreMap.end(); ++mapit)
+	cout << mapit -> first << " : "<< mapit -> second ;
+	cout << endl;
 }
